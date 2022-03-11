@@ -1,15 +1,12 @@
 use base64::DecodeError;
-use bellman::{
-    gadgets::multipack,
-    groth16::{self, Parameters},
-};
-use bls12_381::{Bls12, Scalar};
+use bellman::groth16::{self, Parameters};
+use bls12_381::Bls12;
 use rand::rngs::OsRng;
 use sha2::{Digest, Sha256};
 use std::fs::File;
 use zkp::{
-    base64_decode_proof, base64_decode_verifying_key, base64_encode_proof,
-    base64_encode_verifying_key, prepare_inputs, HiddenStatsCircuit,
+    base64_decode_proof, base64_decode_verifying_key, base64_encode_proof, prepare_inputs,
+    HiddenStatsCircuit,
 };
 
 fn main() {
@@ -18,6 +15,8 @@ fn main() {
     let params = {
         let path = "params.bin";
         let pfile = File::open(path);
+
+        // Read params from file
         if pfile.is_ok() {
             println!("read params");
             Parameters::read(pfile.unwrap(), false).unwrap()
@@ -28,6 +27,7 @@ fn main() {
                 pow: None,
                 agi: None,
             };
+            // producing toxic wastes
             let p = groth16::generate_random_parameters::<Bls12, _, _>(c, &mut OsRng).unwrap();
             p.write(File::create(path).unwrap()).unwrap();
             p
@@ -41,7 +41,6 @@ fn main() {
 
     let total_stats = vit + wis + pow + agi;
 
-    // Create an instance of our circuit (with the preimage as a witness).
     let c = HiddenStatsCircuit {
         vit: Some(vit),
         wis: Some(wis),
@@ -49,6 +48,8 @@ fn main() {
         agi: Some(agi),
     };
 
+    // Hashing...
+    // Deuplicate for demonstrating proof verification by changing params
     let preimage = (HiddenStatsCircuit {
         vit: Some(vit),
         wis: Some(wis),
@@ -83,6 +84,8 @@ fn main() {
 
     dbg!(&smart_contract.character);
 }
+
+// Smart Contract Simulation
 
 #[derive(Debug)]
 enum Character<'a> {
