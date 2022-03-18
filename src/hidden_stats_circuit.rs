@@ -21,9 +21,9 @@ impl<Scalar: PrimeField> Circuit<Scalar> for HiddenStatsCircuit {
     fn synthesize<CS: ConstraintSystem<Scalar>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
         self.enforce_total_stats_constraint(cs)?;
 
-        // Compute hash = SHA-256d(preimage).
+        // Compute hash = SHA-256(preimage).
         let preimage_bits = flip_endianness(&self.preimage_bits(cs)?);
-        let hash = sha256(cs.namespace(|| "SHA-256d(preimage)"), &preimage_bits)?;
+        let hash = sha256(cs.namespace(|| "SHA-256(preimage)"), &preimage_bits)?;
         let hash = flip_endianness(&hash);
         multipack::pack_into_inputs(cs.namespace(|| "pack hash"), &hash)
     }

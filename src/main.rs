@@ -9,9 +9,7 @@ use zkp::{
 };
 
 fn main() {
-    // ================= PROVER ====================
-    // Create parameters for our circuit. In a production deployment these would
-    // be generated securely using a multiparty computation.
+    // ================= SETUP PROCESS ====================
     let params = {
         let path = "params.bin";
         let params_file = File::open(path);
@@ -34,7 +32,11 @@ fn main() {
         }
     };
 
-    // setup character stats
+    // ================= PROVER ====================
+    // Create parameters for our circuit. In a production deployment these would
+    // be generated securely using a multiparty computation.
+
+    // setup iem stats
     let vit: u32 = 18;
     let wis: u32 = 11;
     let pow: u32 = 12;
@@ -74,14 +76,14 @@ fn main() {
 
     // create new charactor with hidden stats
     smart_contract
-        .new_character(&proof_string, total_stats, &hash_string)
+        .new_item(&proof_string, total_stats, &hash_string)
         .unwrap();
 
-    dbg!(&smart_contract.character);
+    dbg!(&smart_contract.item);
 
     println!("\n\n============================\n\n");
 
     smart_contract.reveal_stats(&vit, &wis, &pow, &agi);
 
-    dbg!(&smart_contract.character);
+    dbg!(&smart_contract.item);
 }

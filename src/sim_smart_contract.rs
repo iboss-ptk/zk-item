@@ -8,7 +8,7 @@ use sha2::{Digest, Sha256};
 use crate::utils::{base64_decode_proof, base64_decode_verifying_key, prepare_inputs};
 
 #[derive(Debug)]
-pub enum Character<'a> {
+pub enum Item<'a> {
     Hidden {
         total_stats: u32,
         hash_string: &'a str,
@@ -25,17 +25,17 @@ pub enum Character<'a> {
 #[derive(Debug)]
 pub struct SimSmartContract<'a> {
     pub vk_string: &'a str,
-    pub character: Option<Character<'a>>,
+    pub item: Option<Item<'a>>,
 }
 
 impl<'a> SimSmartContract<'a> {
     pub fn new(vk_string: &'a str) -> Self {
         Self {
             vk_string,
-            character: None,
+            item: None,
         }
     }
-    pub fn new_character(
+    pub fn new_item(
         &mut self,
         proof_string: &'a str,
         total_stats: u32,
@@ -54,10 +54,10 @@ impl<'a> SimSmartContract<'a> {
         let verification = groth16::verify_proof(&pvk, &proof, &inputs);
 
         if verification.is_ok() {
-            println!("create new character with:");
+            println!("create new item with:");
             println!("  total stats: {total_stats}");
             println!("  hash: {hash_string}");
-            self.character = Some(Character::Hidden {
+            self.item = Some(Item::Hidden {
                 total_stats,
                 hash_string,
                 proof_string,
@@ -69,26 +69,26 @@ impl<'a> SimSmartContract<'a> {
     }
 
     pub fn reveal_stats(&mut self, vit: &'a u32, wis: &'a u32, pow: &'a u32, agi: &'a u32) {
-        if let Some(character) = &self.character {
+        if let Some(item) = &self.item {
             let stats_bytes = [vit, wis, pow, agi].map(|s| s.to_le_bytes()).concat();
             let hash = Sha256::digest(&stats_bytes);
             let hash = base64::encode(hash);
 
-            match character {
-                Character::Hidden {
+            match item {
+                Item::Hidden {
                     total_stats: _,
                     hash_string,
                     proof_string: _,
                 } => {
                     // IMPORTANT!!
                     if &hash == *hash_string {
-                        self.character = Some(Character::Revealed { vit, wis, pow, agi });
+                        self.item = Some(Item::Revealed { vit, wis, pow, agi });
                         println!("revealing...");
                     } else {
                         println!("invalid hash, not allowed to reveal!")
                     }
                 }
-                Character::Revealed {
+                Item::Revealed {
                     vit: _,
                     wis: _,
                     pow: _,
@@ -98,7 +98,7 @@ impl<'a> SimSmartContract<'a> {
                 }
             }
         } else {
-            println!("character does not exists!")
+            println!("item does not exists!")
         }
     }
 }
