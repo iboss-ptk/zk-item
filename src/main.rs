@@ -33,10 +33,8 @@ fn main() {
     };
 
     // ================= PROVER ====================
-    // Create parameters for our circuit. In a production deployment these would
-    // be generated securely using a multiparty computation.
 
-    // setup iem stats
+    // setup item stats
     let vit: u32 = 18;
     let wis: u32 = 11;
     let pow: u32 = 12;
@@ -83,7 +81,8 @@ fn main() {
 
     println!("\n\n============================\n\n");
 
-    smart_contract.reveal_stats(&vit, &wis, &pow, &agi);
+    smart_contract.reveal_stats(&vit, &wis, &13, &19);
+    // smart_contract.reveal_stats(&vit, &wis, &pow, &agi);
 
     dbg!(&smart_contract.item);
 }
